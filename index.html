@@ -1502,7 +1502,17 @@
     }
 
     function canChangeDoneState() {
-      return selectedDate === todayKey();
+      const today = todayKey();
+      return selectedDate === today || selectedDate === addDays(today, -1);
+    }
+
+    function doneStatusText() {
+      const today = todayKey();
+
+      if (selectedDate === today) return "Done today";
+      if (selectedDate === addDays(today, -1)) return "Done yesterday";
+
+      return "Done";
     }
 
     function isDayComplete(key) {
@@ -1762,11 +1772,11 @@
         const canChangeDone = canChangeDoneState();
         const duration = formatDuration(getDurationSeconds(selectedDate, person));
         const statusText = done
-          ? duration ? `Done in ${duration}` : canChangeDone ? "Done today" : "Done"
+          ? duration ? `Done in ${duration}` : doneStatusText()
         : editing ? "Enter your time" : "Not done yet";
         const hintText = done
           ? canChangeDone ? "Tap to undo. Long press to edit time." : "Tap to edit time."
-          : canChangeDone ? "Tap to mark done" : "Only today can be marked done";
+          : canChangeDone ? "Tap to mark done" : "Only today or yesterday can be marked done";
         const card = document.createElement("div");
         card.className = `person-card${done ? " done" : ""}${!canChangeDone && !done ? " readonly" : ""}`;
         card.dataset.person = person;
