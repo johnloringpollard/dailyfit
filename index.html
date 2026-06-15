@@ -571,6 +571,25 @@
       letter-spacing: -0.035em;
     }
 
+    .person-title {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .person-name-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .person-streak {
+      color: var(--done);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
     .badge {
       display: inline-grid;
       place-items: center;
@@ -1514,6 +1533,22 @@
       return "Done";
     }
 
+    function getPersonStreakEndingAt(key, person) {
+      let streak = 0;
+      let cursor = key;
+
+      while (isDone(cursor, person)) {
+        streak += 1;
+        cursor = addDays(cursor, -1);
+      }
+
+      return streak;
+    }
+
+    function formatPersonStreak(streak) {
+      return streak >= 2 ? `${streak} day streak` : "";
+    }
+
     function getCountdownDays() {
       const millisecondsPerDay = 24 * 60 * 60 * 1000;
       const today = parseDate(todayKey());
@@ -1767,6 +1802,7 @@
         const editing = isEditing(person);
         const canChangeDone = canChangeDoneState();
         const duration = formatDuration(getDurationSeconds(selectedDate, person));
+        const personStreak = formatPersonStreak(getPersonStreakEndingAt(selectedDate, person));
         const statusText = done
           ? duration ? `Done in ${duration}` : doneStatusText()
         : editing ? "Enter your time" : "Not done yet";
@@ -1785,7 +1821,10 @@
 
         card.innerHTML = `
           <div class="person-name">
-            <span>${escapeHtml(person)}</span>
+            <span class="person-title">
+              <span class="person-name-text">${escapeHtml(person)}</span>
+              ${personStreak ? `<span class="person-streak">${escapeHtml(personStreak)}</span>` : ""}
+            </span>
             <span class="badge">${done ? "✓" : "—"}</span>
           </div>
           <div class="status">
