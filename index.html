@@ -583,11 +583,28 @@
       white-space: nowrap;
     }
 
-    .person-streak {
-      color: var(--done);
+    .person-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
       font-size: 0.76rem;
       font-weight: 850;
       letter-spacing: 0;
+    }
+
+    .person-streak {
+      color: var(--done);
+    }
+
+    .person-total {
+      color: var(--muted);
+    }
+
+    .person-streak + .person-total::before {
+      content: "·";
+      margin-right: 5px;
+      color: #a8b0c0;
     }
 
     .badge {
@@ -1549,6 +1566,19 @@
       return streak >= 2 ? `${streak} day streak` : "";
     }
 
+    function getPersonTotalCompleted(person) {
+      const today = todayKey();
+
+      return Object.keys(data).reduce((total, key) => {
+        if (key > today) return total;
+        return total + (isDone(key, person) ? 1 : 0);
+      }, 0);
+    }
+
+    function formatPersonTotal(total) {
+      return `${total} total`;
+    }
+
     function getCountdownDays() {
       const millisecondsPerDay = 24 * 60 * 60 * 1000;
       const today = parseDate(todayKey());
@@ -1803,6 +1833,7 @@
         const canChangeDone = canChangeDoneState();
         const duration = formatDuration(getDurationSeconds(selectedDate, person));
         const personStreak = formatPersonStreak(getPersonStreakEndingAt(selectedDate, person));
+        const personTotal = formatPersonTotal(getPersonTotalCompleted(person));
         const statusText = done
           ? duration ? `Done in ${duration}` : doneStatusText()
         : editing ? "Enter your time" : "Not done yet";
@@ -1823,7 +1854,10 @@
           <div class="person-name">
             <span class="person-title">
               <span class="person-name-text">${escapeHtml(person)}</span>
-              ${personStreak ? `<span class="person-streak">${escapeHtml(personStreak)}</span>` : ""}
+              <span class="person-meta">
+                ${personStreak ? `<span class="person-streak">${escapeHtml(personStreak)}</span>` : ""}
+                <span class="person-total">${escapeHtml(personTotal)}</span>
+              </span>
             </span>
             <span class="badge">${done ? "✓" : "—"}</span>
           </div>
